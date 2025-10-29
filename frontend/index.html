@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temu Scraper - Buscador de Productos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-shopping-cart text-3xl"></i>
+                    <h1 class="text-3xl font-bold">Temu Scraper</h1>
+                </div>
+                <div class="text-sm opacity-80">
+                    <i class="fas fa-link"></i> Generador de Links de Afiliado
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Search Section -->
+        <div class="bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-search mr-3 text-purple-400"></i>
+                Búsqueda de Productos
+            </h2>
+
+            <form id="searchForm" class="space-y-4">
+                <!-- Search Query -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">
+                        <i class="fas fa-keyboard mr-2"></i>Término de búsqueda
+                    </label>
+                    <input
+                        type="text"
+                        id="searchQuery"
+                        placeholder="ej: wireless earbuds, smartphone, etc."
+                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        required
+                    >
+                </div>
+
+                <!-- Filters Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Max Products -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            <i class="fas fa-layer-group mr-2"></i>Máximo de productos
+                        </label>
+                        <input
+                            type="number"
+                            id="maxProducts"
+                            value="20"
+                            min="1"
+                            max="100"
+                            class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        >
+                    </div>
+
+                    <!-- Min Rating -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            <i class="fas fa-star mr-2 text-yellow-400"></i>Rating mínimo
+                        </label>
+                        <select
+                            id="minRating"
+                            class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        >
+                            <option value="0">Todos</option>
+                            <option value="3.0">3+ estrellas</option>
+                            <option value="3.5">3.5+ estrellas</option>
+                            <option value="4.0" selected>4+ estrellas</option>
+                            <option value="4.5">4.5+ estrellas</option>
+                            <option value="4.8">4.8+ estrellas</option>
+                        </select>
+                    </div>
+
+                    <!-- Min Reviews -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            <i class="fas fa-comments mr-2 text-blue-400"></i>Reviews mínimas
+                        </label>
+                        <select
+                            id="minReviews"
+                            class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        >
+                            <option value="0">Todas</option>
+                            <option value="50">50+</option>
+                            <option value="100" selected>100+</option>
+                            <option value="500">500+</option>
+                            <option value="1000">1000+</option>
+                            <option value="5000">5000+</option>
+                        </select>
+                    </div>
+
+                    <!-- Min Sales -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            <i class="fas fa-chart-line mr-2 text-green-400"></i>Ventas mínimas
+                        </label>
+                        <select
+                            id="minSales"
+                            class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        >
+                            <option value="0" selected>Todas</option>
+                            <option value="100">100+</option>
+                            <option value="500">500+</option>
+                            <option value="1000">1000+</option>
+                            <option value="5000">5000+</option>
+                            <option value="10000">10000+</option>
+                        </select>
+                    </div>
+
+                    <!-- Price Min -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            <i class="fas fa-dollar-sign mr-2 text-green-400"></i>Precio mínimo ($)
+                        </label>
+                        <input
+                            type="number"
+                            id="priceMin"
+                            value="0"
+                            min="0"
+                            step="0.01"
+                            class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        >
+                    </div>
+
+                    <!-- Price Max -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            <i class="fas fa-dollar-sign mr-2 text-green-400"></i>Precio máximo ($)
+                        </label>
+                        <input
+                            type="number"
+                            id="priceMax"
+                            value="999999"
+                            min="0"
+                            step="0.01"
+                            class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500"
+                        >
+                    </div>
+                </div>
+
+                <!-- Search Button -->
+                <button
+                    type="submit"
+                    id="searchButton"
+                    class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-lg transition duration-200 flex items-center justify-center space-x-2"
+                >
+                    <i class="fas fa-search"></i>
+                    <span>Buscar Productos</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center py-12">
+            <i class="fas fa-spinner fa-spin text-6xl text-purple-500 mb-4"></i>
+            <p class="text-xl">Scrapeando productos de Temu...</p>
+            <p class="text-sm text-gray-400 mt-2">Esto puede tomar unos segundos</p>
+        </div>
+
+        <!-- Results Stats -->
+        <div id="stats" class="hidden bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
+            <h3 class="text-xl font-bold mb-4">📊 Resultados</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-gray-700 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-purple-400" id="statTotal">0</div>
+                    <div class="text-sm text-gray-400">Total encontrados</div>
+                </div>
+                <div class="bg-gray-700 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-green-400" id="statFiltered">0</div>
+                    <div class="text-sm text-gray-400">Después de filtros</div>
+                </div>
+                <div class="bg-gray-700 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-yellow-400" id="statAvgRating">0</div>
+                    <div class="text-sm text-gray-400">Rating promedio</div>
+                </div>
+                <div class="bg-gray-700 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-blue-400" id="statAvgPrice">$0</div>
+                    <div class="text-sm text-gray-400">Precio promedio</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Products will be inserted here -->
+        </div>
+
+        <!-- No Results -->
+        <div id="noResults" class="hidden text-center py-12 bg-gray-800 rounded-lg">
+            <i class="fas fa-inbox text-6xl text-gray-600 mb-4"></i>
+            <p class="text-xl text-gray-400">No se encontraron productos con estos filtros</p>
+            <p class="text-sm text-gray-500 mt-2">Intenta ajustar los filtros de búsqueda</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 border-t border-gray-700 mt-12 py-6">
+        <div class="container mx-auto px-4 text-center text-gray-400">
+            <p>Temu Scraper API v1.0 | Generador de Links de Afiliado</p>
+            <p class="text-sm mt-2">Powered by Crawl4AI 🔥</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

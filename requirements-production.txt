@@ -1,0 +1,47 @@
+# ================================================
+# TEMU SCRAPER - DEPENDENCIAS PARA PRODUCCIÓN
+# ================================================
+# Usar este archivo en Dockerfile para producción optimizada
+
+# Core scraping
+crawl4ai>=0.7.0
+playwright>=1.40.0
+
+# Data models and validation
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# API REST
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# LLM providers
+litellm>=1.30.0
+openai>=1.10.0
+
+# Database - Solo PostgreSQL para producción
+sqlalchemy>=2.0.0
+asyncpg>=0.29.0
+psycopg2-binary>=2.9.9
+alembic>=1.13.0
+
+# Redis para caché
+redis>=5.0.0
+aioredis>=2.0.0
+
+# Utils
+python-dotenv>=1.0.0
+aiofiles>=23.0.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+
+# HTTP clients
+httpx>=0.25.0
+requests>=2.31.0
+
+# Monitoring y logging
+python-json-logger>=2.0.7
+
+# Producción optimizada (sin dependencias de dev)
+gunicorn>=21.2.0  # WSGI server alternativo

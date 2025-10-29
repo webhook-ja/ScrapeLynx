@@ -1,0 +1,26 @@
+# TEMU Scraper - Dependencias
+
+# Core scraping
+crawl4ai>=0.7.0
+playwright>=1.40.0
+
+# Data models
+pydantic>=2.0.0
+
+# API REST (para siguiente fase)
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# LLM providers
+litellm>=1.30.0
+openai>=1.10.0
+
+# Database
+sqlalchemy>=2.0.0
+aiosqlite>=0.19.0  # Para SQLite async
+asyncpg>=0.29.0    # Para PostgreSQL async (opcional)
+alembic>=1.13.0    # Migraciones de base de datos
+
+# Utils
+python-dotenv>=1.0.0
+aiofiles>=23.0.0

@@ -1,0 +1,195 @@
+# ================================================
+# CONFIGURACIÓN PARA EASYPANEL
+# ================================================
+# Este archivo sirve como referencia para configurar el proyecto en Easypanel
+
+version: "3.8"
+
+services:
+  # ==================== BASE DE DATOS ====================
+  # En Easypanel, crea primero un servicio PostgreSQL:
+  # 1. Click en "+ Create Service"
+  # 2. Selecciona "Database" > "PostgreSQL"
+  # 3. Nombre: temu-postgres
+  # 4. Usuario: temu_user
+  # 5. Base de datos: temu_db
+  # 6. Password: [genera uno seguro]
+  #
+  # Easypanel te dará una URL de conexión como:
+  # postgresql://temu_user:password@temu-postgres:5432/temu_db
+
+  # ==================== REDIS (OPCIONAL) ====================
+  # Para caché futuro:
+  # 1. Click en "+ Create Service"
+  # 2. Selecciona "Database" > "Redis"
+  # 3. Nombre: temu-redis
+  #
+  # URL será: redis://temu-redis:6379/0
+
+  # ==================== API (APLICACIÓN PRINCIPAL) ====================
+  # 1. Click en "+ Create Service"
+  # 2. Selecciona "App" > "From GitHub"
+  # 3. Conecta tu repositorio
+  # 4. Configura:
+
+  app:
+    # Build Settings
+    build:
+      dockerfile: Dockerfile
+      context: .
+
+    # Port Configuration
+    ports:
+      - "8000:8000"
+
+    # Environment Variables (configura estas en Easypanel UI)
+    environment:
+      # Entorno
+      ENVIRONMENT: production
+      DEBUG: "false"
+
+      # Database (Easypanel generará esto automáticamente si linkeas el servicio PostgreSQL)
+      DATABASE_TYPE: postgresql
+      DATABASE_URL: ${POSTGRES_URL}  # Easypanel lo provee automáticamente
+
+      # Redis (si lo configuraste)
+      REDIS_ENABLED: "true"
+      REDIS_URL: ${REDIS_URL}
+
+      # Temu (DEBES CONFIGURAR ESTO MANUALMENTE)
+      TEMU_AFFILIATE_ID: ${TEMU_AFFILIATE_ID}
+
+      # OpenAI (DEBES CONFIGURAR ESTO MANUALMENTE)
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LLM_PROVIDER: openai/gpt-4o-mini
+
+      # Scraping
+      MAX_CONCURRENT_REQUESTS: "3"
+      REQUEST_DELAY_SECONDS: "2"
+
+      # API
+      PORT: "8000"
+      CORS_ORIGINS: "*"
+
+    # Volumes (persistencia de datos)
+    volumes:
+      - temu_results:/app/results
+      - temu_logs:/app/logs
+
+    # Health Check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Resource Limits (ajusta según tu plan)
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+        reservations:
+          memory: 512M
+          cpus: "0.5"
+
+    # Restart Policy
+    restart: unless-stopped
+
+# ==================== VOLÚMENES ====================
+volumes:
+  temu_results:
+    driver: local
+  temu_logs:
+    driver: local
+
+# ================================================
+# INSTRUCCIONES DE DEPLOYMENT EN EASYPANEL
+# ================================================
+#
+# PASO 1: PREPARAR EL REPOSITORIO
+# 1. Sube el código a GitHub:
+#    git init
+#    git add .
+#    git commit -m "Initial commit - Temu Scraper"
+#    git branch -M main
+#    git remote add origin https://github.com/tu-usuario/temu-scraper.git
+#    git push -u origin main
+#
+# PASO 2: CREAR BASE DE DATOS EN EASYPANEL
+# 1. Login a tu panel de Easypanel
+# 2. Click en "+ Create Service"
+# 3. Selecciona "Database" > "PostgreSQL 15"
+# 4. Configuración:
+#    - Name: temu-postgres
+#    - Database: temu_db
+#    - Username: temu_user
+#    - Password: [genera uno fuerte]
+# 5. Click en "Deploy"
+# 6. Espera a que esté "Running"
+# 7. Copia la "Connection String" (DATABASE_URL)
+#
+# PASO 3: CREAR REDIS (OPCIONAL)
+# 1. Click en "+ Create Service"
+# 2. Selecciona "Database" > "Redis"
+# 3. Name: temu-redis
+# 4. Click en "Deploy"
+#
+# PASO 4: CREAR APLICACIÓN
+# 1. Click en "+ Create Service"
+# 2. Selecciona "App" > "From GitHub Repository"
+# 3. Conecta tu cuenta de GitHub
+# 4. Selecciona tu repositorio "temu-scraper"
+# 5. Branch: main
+# 6. Build Method: "Dockerfile"
+# 7. Dockerfile Path: ./Dockerfile
+#
+# PASO 5: CONFIGURAR VARIABLES DE ENTORNO
+# En la sección "Environment Variables":
+#
+# DATABASE_TYPE=postgresql
+# DATABASE_URL=[pega la URL de PostgreSQL del Paso 2]
+# TEMU_AFFILIATE_ID=[tu ID de afiliado]
+# OPENAI_API_KEY=[tu API key]
+# LLM_PROVIDER=openai/gpt-4o-mini
+# ENVIRONMENT=production
+# PORT=8000
+# CORS_ORIGINS=*
+#
+# PASO 6: CONFIGURAR DOMINIO
+# 1. En la app, ve a "Domains"
+# 2. Click en "Add Domain"
+# 3. Opciones:
+#    - Subdominio Easypanel: tu-app.easypanel.host (gratis)
+#    - Dominio custom: tu-dominio.com (si tienes uno)
+#
+# PASO 7: DEPLOY
+# 1. Click en "Deploy"
+# 2. Espera a que el build termine (puede tomar 5-10 min)
+# 3. Verifica el estado en "Logs"
+# 4. Una vez "Running", visita tu dominio
+#
+# PASO 8: VERIFICAR FUNCIONAMIENTO
+# 1. Abre: https://tu-app.easypanel.host/health
+#    Deberías ver: {"status":"healthy","timestamp":"..."}
+#
+# 2. Abre: https://tu-app.easypanel.host/docs
+#    Verás la documentación de la API
+#
+# 3. Prueba el frontend:
+#    https://tu-app.easypanel.host
+#
+# PASO 9: CONFIGURAR AUTO-DEPLOY (OPCIONAL)
+# 1. En la app, ve a "Settings" > "Build"
+# 2. Activa "Auto Deploy on Push"
+# 3. Ahora cada push a main rebuildeará automáticamente
+#
+# ================================================
+# NOTAS IMPORTANTES
+# ================================================
+# - El primer build puede tomar 10+ minutos (Playwright descarga Chromium)
+# - Asegúrate de tener suficiente RAM (mínimo 1GB)
+# - Los logs se ven en tiempo real en Easypanel UI
+# - Puedes escalar horizontalmente agregando más instancias
+# - Para HTTPS automático, usa el dominio de Easypanel

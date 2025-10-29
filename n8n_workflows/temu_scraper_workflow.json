@@ -1,0 +1,375 @@
+{
+  "name": "Temu Scraper - Búsqueda Automática",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "start-node",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "search_query",
+              "value": "wireless earbuds"
+            },
+            {
+              "name": "max_products",
+              "value": "20"
+            },
+            {
+              "name": "min_rating",
+              "value": "4.0"
+            },
+            {
+              "name": "min_reviews",
+              "value": "100"
+            },
+            {
+              "name": "min_sales",
+              "value": "0"
+            },
+            {
+              "name": "price_min",
+              "value": "0"
+            },
+            {
+              "name": "price_max",
+              "value": "999999"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-params",
+      "name": "Set Search Parameters",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [450, 300],
+      "notes": "Configura los parámetros de búsqueda aquí"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:8000/webhook/n8n/search",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "search_query",
+              "value": "={{ $json.search_query }}"
+            },
+            {
+              "name": "max_products",
+              "value": "={{ parseInt($json.max_products) }}"
+            },
+            {
+              "name": "min_rating",
+              "value": "={{ parseFloat($json.min_rating) }}"
+            },
+            {
+              "name": "min_reviews",
+              "value": "={{ parseInt($json.min_reviews) }}"
+            },
+            {
+              "name": "min_sales",
+              "value": "={{ parseInt($json.min_sales) }}"
+            },
+            {
+              "name": "price_min",
+              "value": "={{ parseFloat($json.price_min) }}"
+            },
+            {
+              "name": "price_max",
+              "value": "={{ parseFloat($json.price_max) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-request",
+      "name": "Call Temu Scraper API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [650, 300],
+      "notes": "Llama a la API del scraper"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.success }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "if-success",
+      "name": "Check Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "value": "={{ $json.products }}",
+        "include": "noEmpty"
+      },
+      "id": "split-products",
+      "name": "Split Products",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [1050, 200],
+      "notes": "Separa cada producto en items individuales"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "title",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "name": "price",
+              "value": "={{ $json.price }}"
+            },
+            {
+              "name": "original_price",
+              "value": "={{ $json.original_price }}"
+            },
+            {
+              "name": "discount_percentage",
+              "value": "={{ $json.discount_percentage }}"
+            },
+            {
+              "name": "rating",
+              "value": "={{ $json.rating }}"
+            },
+            {
+              "name": "reviews_count",
+              "value": "={{ $json.reviews_count }}"
+            },
+            {
+              "name": "sales_count",
+              "value": "={{ $json.sales_count }}"
+            },
+            {
+              "name": "image_url",
+              "value": "={{ $json.image_url }}"
+            },
+            {
+              "name": "product_url",
+              "value": "={{ $json.product_url }}"
+            },
+            {
+              "name": "affiliate_link",
+              "value": "={{ $json.affiliate_link }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "clean-data",
+      "name": "Clean Product Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1250, 200],
+      "notes": "Limpia y normaliza los datos del producto"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "save-to-sheets",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1450, 200],
+      "notes": "Guarda productos en Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIALS_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "message": "=✅ Scraping completado!\n\n🔍 Búsqueda: {{ $('Set Search Parameters').item.json.search_query }}\n📦 Productos encontrados: {{ $json.total_products }}\n⭐ Rating promedio: {{ $json.products.reduce((sum, p) => sum + p.rating, 0) / $json.products.length }}\n💰 Precio promedio: ${{ ($json.products.reduce((sum, p) => sum + p.price, 0) / $json.products.length).toFixed(2) }}",
+        "additionalFields": {
+          "linkNames": "Ver en Sheets",
+          "linkUrls": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID"
+        }
+      },
+      "id": "notify-success",
+      "name": "Send Telegram Success",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1650, 200],
+      "notes": "Notifica éxito por Telegram",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIALS",
+          "name": "Telegram Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "message": "=❌ Error en scraping\n\n🔍 Búsqueda: {{ $('Set Search Parameters').item.json.search_query }}\n⚠️ Error: {{ $json.error || 'Unknown error' }}",
+        "additionalFields": {}
+      },
+      "id": "notify-error",
+      "name": "Send Telegram Error",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1050, 400],
+      "notes": "Notifica errores por Telegram",
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIALS",
+          "name": "Telegram Account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Set Search Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Search Parameters": {
+      "main": [
+        [
+          {
+            "node": "Call Temu Scraper API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Temu Scraper API": {
+      "main": [
+        [
+          {
+            "node": "Check Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Success": {
+      "main": [
+        [
+          {
+            "node": "Split Products",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Telegram Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Products": {
+      "main": [
+        [
+          {
+            "node": "Clean Product Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Product Data": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "meta": {
+    "instanceId": "your-instance-id"
+  },
+  "id": "temu-scraper",
+  "tags": [
+    {
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "id": "1",
+      "name": "temu"
+    },
+    {
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "id": "2",
+      "name": "scraper"
+    },
+    {
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z",
+      "id": "3",
+      "name": "afiliados"
+    }
+  ]
+}
