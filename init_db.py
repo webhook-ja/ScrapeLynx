@@ -1,11 +1,12 @@
 """
 INICIALIZACIÓN DE BASE DE DATOS
 Script para crear tablas e insertar datos iniciales
-Ejecutar una vez después del primer deployment
+Se ejecuta automáticamente en el entrypoint.sh
 """
 
 import asyncio
 import sys
+import os
 from database import db, init_database, test_database
 
 async def main():

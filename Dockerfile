@@ -1,11 +1,18 @@
-# Dockerfile para Temu Scraper API
+# ============================================
+# ScrapeLynx - Dockerfile para Easypanel
+# One-Click Install Ready
+# ============================================
+
 FROM python:3.11-slim
 
 # Establecer directorio de trabajo
 WORKDIR /app
 
-# Instalar dependencias del sistema necesarias para Playwright y Crawl4AI
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
+    # PostgreSQL client para healthcheck
+    postgresql-client \
+    # Dependencias de Playwright
     wget \
     gnupg \
     ca-certificates \
@@ -30,13 +37,16 @@ RUN apt-get update && apt-get install -y \
     xdg-utils \
     libu2f-udev \
     libvulkan1 \
+    # Utilidades
+    curl \
+    bash \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar requirements
-COPY requirements.txt .
+COPY requirements.txt requirements-production.txt ./
 
 # Instalar dependencias de Python
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements-production.txt
 
 # Instalar navegadores de Playwright
 RUN playwright install chromium
@@ -45,20 +55,24 @@ RUN playwright install-deps chromium
 # Copiar código de la aplicación
 COPY . .
 
-# Crear directorio para resultados
-RUN mkdir -p /app/results
+# Hacer ejecutable el entrypoint
+RUN chmod +x entrypoint.sh
+
+# Crear directorios necesarios
+RUN mkdir -p /app/results /app/logs
+
+# Variables de entorno por defecto
+ENV PYTHONUNBUFFERED=1 \
+    PORT=8000 \
+    ENVIRONMENT=production \
+    DATABASE_TYPE=postgresql
 
 # Exponer puerto
 EXPOSE 8000
 
-# Variables de entorno por defecto
-ENV PYTHONUNBUFFERED=1
-ENV DATABASE_TYPE=postgresql
-ENV PORT=8000
+# Health check mejorado
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health')"
-
-# Comando para iniciar la aplicación
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Usar entrypoint para auto-inicialización
+ENTRYPOINT ["./entrypoint.sh"]
