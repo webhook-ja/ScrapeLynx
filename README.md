@@ -1,342 +1,149 @@
-# 🛍️ TEMU Scraper - Sistema Completo
+# 🐆 ScrapeLynx - AI-Powered Affiliate Scraping SaaS Platform
 
-Sistema avanzado de scraping de productos de Temu con:
-- 🤖 **Scraping anti-bot** con Crawl4AI + IA
-- 🔗 **Generación automática** de links de afiliado
-- 🎨 **Interfaz web** con filtros interactivos
-- 🔄 **API REST** para integración con n8n
-- 💾 **Base de datos** SQLite/PostgreSQL
+**Complete system for scraping Temu products with affiliate link generation, API, and database management.**
 
----
+## ✨ Features
 
-## 🔥 Características Completas
+- 🤖 **AI-Powered Scraping**: Uses Crawl4AI with LLMs for data extraction without CSS selectors
+- 🔗 **Affiliate Link Generation**: Automatically creates Temu affiliate links
+- 🎨 **Web Interface**: Interactive frontend with filtering capabilities
+- 🔄 **REST API**: FastAPI endpoints for integration with n8n
+- 💾 **Database Support**: PostgreSQL (production) / SQLite (development)
+- 🐳 **Docker Ready**: Production-ready Docker configuration
+- 🚀 **Easypanel Deployment**: One-click deployment ready
 
-✅ **Scraping anti-bot**: Evade protecciones de Temu usando Crawl4AI con stealth mode
-✅ **Extracción con IA**: Usa LLMs para extraer datos estructurados sin selectores CSS
-✅ **Links de afiliado**: Genera automáticamente tus links de referido
-✅ **Filtros avanzados**: Rating, reviews, ventas, precio, categoría
-✅ **API REST**: FastAPI con endpoints para búsqueda y gestión
-✅ **Frontend web**: Interfaz gráfica con Tailwind CSS
-✅ **Integración n8n**: Workflows listos para importar
-✅ **Base de datos**: SQLite (desarrollo) o PostgreSQL (producción)
-✅ **Scripts de instalación**: Setup automático para Windows/Linux/Mac
-
----
-
-## 📁 Estructura del Proyecto
+## 📁 Project Structure
 
 ```
-temu_scraper/
-├── scraper.py              # Motor de scraping (Crawl4AI + LLM)
-├── api.py                  # API REST (FastAPI)
-├── database.py             # Sistema de base de datos
-├── requirements.txt        # Dependencias Python
-├── .env.example           # Template de configuración
+scrapelynx/
+├── scraper.py              # AI-powered scraping engine
+├── api.py                  # FastAPI REST API
+├── database.py             # Database management (PostgreSQL/SQLite)
+├── config.py               # Centralized configuration
+├── requirements.txt        # Python dependencies
+├── requirements-production.txt # Production dependencies
 │
-├── frontend/              # Interfaz web
-│   ├── index.html        # Frontend HTML
-│   └── app.js            # JavaScript
+├── frontend/              # Web interface
+│   ├── index.html         # Main dashboard
+│   └── app.js             # Frontend logic
 │
-├── n8n_workflows/        # Workflows de n8n
-│   ├── temu_scraper_workflow.json
-│   └── README_N8N.md
+├── Dockerfile             # Production Docker configuration
+├── docker-compose.yml     # Development compose file
+├── docker-compose.easypanel.yml # Production compose for Easypanel
 │
-├── results/              # Resultados guardados (JSON)
-│
-└── Scripts de instalación:
-    ├── install.bat       # Windows
-    ├── install.sh        # Linux/Mac
-    ├── start_api.bat     # Iniciar API (Windows)
-    ├── start_api.sh      # Iniciar API (Linux/Mac)
-    ├── test_scraper.bat  # Probar scraper (Windows)
-    └── test_scraper.sh   # Probar scraper (Linux/Mac)
+└── deployment/
+    ├── .env.example       # Environment template
+    ├── entrypoint.sh      # Container startup script
+    └── nginx.conf         # Nginx configuration
 ```
 
----
+## 🚀 Quick Start - Local Development
 
-## 🚀 Instalación Rápida
-
-### Windows
-
+### 1. Clone the repository
 ```bash
-# 1. Clonar/descargar el proyecto
-cd temu_scraper
-
-# 2. Ejecutar instalador automático
-install.bat
-
-# 3. Editar .env con tus credenciales
-notepad .env
-
-# 4. Iniciar la API
-start_api.bat
-
-# 5. Abrir frontend
-start_frontend.bat
+git clone https://github.com/YOUR_USERNAME/scrapelynx.git
+cd scrapelynx
 ```
 
-### Linux/Mac
-
-```bash
-# 1. Clonar/descargar el proyecto
-cd temu_scraper
-
-# 2. Dar permisos a los scripts
-chmod +x *.sh
-
-# 3. Ejecutar instalador automático
-./install.sh
-
-# 4. Editar .env con tus credenciales
-nano .env
-
-# 5. Iniciar la API
-./start_api.sh
-
-# 6. Abrir frontend/index.html en navegador
-```
-
----
-
-## 📦 Instalación Manual
-
-### 1. Instalar dependencias
-
+### 2. Install dependencies
 ```bash
 pip install -r requirements.txt
-```
-
-### 2. Instalar navegadores de Playwright
-
-```bash
 playwright install chromium
 ```
 
-### 3. Configurar variables de entorno
-
-Copia el archivo `.env.example` a `.env`:
-
+### 3. Configure environment variables
 ```bash
 cp .env.example .env
 ```
 
-Edita `.env` y agrega:
-- Tu **ID de afiliado de Temu**
-- Tu **API Key de OpenAI** (o usa Ollama local)
+Edit `.env` with your credentials:
+```env
+# Required
+TEMU_AFFILIATE_ID=your_affiliate_id
+OPENAI_API_KEY=sk-your-api-key-here
 
-### 4. Inicializar base de datos
-
-```bash
-python database.py
-```
-
----
-
-## 🚀 Uso
-
-### Búsqueda básica
-
-```python
-import asyncio
-from scraper import scrape_temu_search
-
-async def main():
-    results = await scrape_temu_search(
-        search_query="wireless earbuds",
-        max_products=20
-    )
-    print(results)
-
-asyncio.run(main())
-```
-
-### Búsqueda con filtros avanzados
-
-```python
-results = await scrape_temu_search(
-    search_query="smartphone",
-    max_products=30,
-    min_rating=4.5,        # Mínimo 4.5 estrellas
-    min_reviews=500,       # Mínimo 500 reviews
-    min_sales=1000,        # Mínimo 1000 ventas
-    price_min=50.0,        # Precio mínimo $50
-    price_max=300.0        # Precio máximo $300
-)
-```
-
-### Scrape de producto individual
-
-```python
-from scraper import scrape_single_product
-
-result = await scrape_single_product(
-    product_url="https://www.temu.com/example-product.html"
-)
-```
-
----
-
-## 🧪 Pruebas
-
-Ejecuta el script de prueba:
-
-```bash
-python scraper.py
-```
-
-Esto buscará "wireless earbuds" con filtros y guardará los resultados en `temu_search_results.json`.
-
----
-
-## 📊 Estructura de Datos
-
-### Producto
-
-```json
-{
-  "title": "Auriculares Bluetooth TWS",
-  "price": 15.99,
-  "original_price": 39.99,
-  "discount_percentage": 60,
-  "rating": 4.7,
-  "reviews_count": 1523,
-  "sales_count": 5420,
-  "image_url": "https://...",
-  "product_url": "https://www.temu.com/...",
-  "affiliate_link": "https://www.temu.com/...?_x_ads_channel=affiliate&_x_ads_sub_channel=YOUR_ID",
-  "category": "Electronics"
-}
-```
-
----
-
-## 🔧 Configuración Avanzada
-
-### Cambiar modelo LLM
-
-En `scraper.py`, modifica:
-
-```python
-# Usar GPT-4o (más preciso, más caro)
-LLM_PROVIDER = "openai/gpt-4o"
-
-# Usar GPT-4o-mini (más barato, rápido)
-LLM_PROVIDER = "openai/gpt-4o-mini"
-
-# Usar Ollama local (GRATIS, pero necesitas correr Ollama)
-LLM_PROVIDER = "ollama/llama2"
-```
-
-### Ajustar anti-bot protection
-
-En `CrawlerRunConfig`:
-
-```python
-config = CrawlerRunConfig(
-    magic=True,              # Activa anti-bot automático
-    simulate_user=True,      # Simula movimiento de mouse, etc.
-    override_navigator=True, # Falsifica propiedades del navegador
-    delay_before_return_html=5.0,  # Esperar más tiempo
-)
-```
-
----
-
-## 🔗 Integración con n8n
-
-### Importar Workflow
-
-1. Abre n8n
-2. Importa `n8n_workflows/temu_scraper_workflow.json`
-3. Configura credenciales (Google Sheets, Telegram)
-4. Actualiza la URL de la API
-5. Lee la documentación completa en `n8n_workflows/README_N8N.md`
-
-### Endpoints de la API
-
-```
-POST /api/search          - Búsqueda de productos
-POST /api/product         - Scrape producto individual
-POST /api/affiliate       - Generar link de afiliado
-GET  /api/results         - Listar resultados guardados
-GET  /api/results/{file}  - Obtener resultado específico
-
-POST /webhook/n8n/search  - Webhook especial para n8n
-```
-
-Documentación completa: `http://localhost:8000/docs`
-
----
-
-## 💾 Base de Datos
-
-### SQLite (Desarrollo)
-
-Por defecto, usa SQLite local (`temu_products.db`):
-
-```python
-# .env
+# Database (defaults to SQLite for development)
 DATABASE_TYPE=sqlite
 DATABASE_URL=sqlite:///temu_products.db
 ```
 
-### PostgreSQL (Producción)
-
-Para producción, usa PostgreSQL:
-
-```python
-# .env
-DATABASE_TYPE=postgresql
-DATABASE_URL=postgresql://user:password@localhost:5432/temu_db
+### 4. Start the application
+```bash
+python api.py
 ```
 
-### Funciones Disponibles
+### 5. Access the interface
+- API: `http://localhost:8000`
+- Documentation: `http://localhost:8000/docs`
+- Frontend: Open `frontend/index.html` in your browser
 
-```python
-from database import db
+## 🚀 Production Deployment with Easypanel
 
-# Guardar productos
-await db.save_product(product_data)
-await db.save_products_batch([product1, product2])
+### Prerequisites
+- Easypanel account
+- GitHub repository with this code
+- Temu Affiliate ID
+- OpenAI API Key (or Ollama for local LLM)
 
-# Buscar productos
-products = await db.search_products(
-    query="earbuds",
-    min_rating=4.5,
-    limit=50
-)
-
-# Estadísticas
-stats = await db.get_stats()
+### 1. Create PostgreSQL Database in Easypanel
+```
++ New → Database → PostgreSQL
+Name: scrapelynx-db
+Database: scrapelynx
+User: scrapelynx
+Password: [use auto-generated password]
 ```
 
----
+### 2. Create Application in Easypanel
+```
++ New → App → From GitHub
+Repository: your-username/scrapelynx
+Branch: main
+Build Method: Docker Compose
+Compose File: docker-compose.easypanel.yml
+```
 
-## 🎨 Frontend Web
+### 3. Add Environment Variables
+Add only these required variables:
+```env
+TEMU_AFFILIATE_ID=your_real_affiliate_id
+OPENAI_API_KEY=sk-your-real-api-key
+```
 
-### Usar la Interfaz
+### 4. Deploy
+Click "Deploy" and wait 10-15 minutes for the first build.
 
-1. Inicia la API: `start_api.bat` o `./start_api.sh`
-2. Abre `frontend/index.html` en tu navegador
-3. Configura filtros de búsqueda
-4. Click en "Buscar Productos"
-5. Copia links de afiliado con un click
+## 🐳 Docker Compose Deployment
 
-### Características del Frontend
+For manual Docker deployment:
 
-- ✅ Búsqueda en tiempo real
-- ✅ Filtros interactivos (rating, reviews, ventas, precio)
-- ✅ Vista de productos en grid responsive
-- ✅ Estadísticas automáticas
-- ✅ Copiar link de afiliado
-- ✅ Vista previa de imágenes
-- ✅ Indicadores de descuentos
+```bash
+# Build and start services
+docker-compose -f docker-compose.easypanel.yml up -d
 
----
+# View logs
+docker-compose -f docker-compose.easypanel.yml logs -f app
+```
 
-## 📊 API Endpoints (Detalle)
+## 🔧 Available APIs
 
-### Búsqueda de Productos
+- `GET /` - API info
+- `GET /health` - Health check
+- `POST /api/search` - Search Temu products
+- `POST /api/product` - Scrape individual product
+- `POST /api/affiliate` - Generate affiliate link
+- `GET /api/results` - List saved results
+- `GET /api/results/{filename}` - Get specific result
+- `DELETE /api/results/{filename}` - Delete result
+- `POST /webhook/n8n/search` - n8n webhook endpoint
+
+## 🤖 Using with n8n
+
+1. Import workflow from `n8n_workflows/temu_scraper_workflow.json`
+2. Configure API endpoint: `http://your-domain.com/webhook/n8n/search`
+3. Set up Google Sheets/Telegram credentials in n8n
+
+## 📊 API Usage Example
 
 ```bash
 curl -X POST http://localhost:8000/api/search \
@@ -352,103 +159,46 @@ curl -X POST http://localhost:8000/api/search \
   }'
 ```
 
-### Producto Individual
+## ⚙️ Environment Variables
 
-```bash
-curl -X POST http://localhost:8000/api/product \
-  -H "Content-Type: application/json" \
-  -d '{
-    "product_url": "https://www.temu.com/product-xyz.html"
-  }'
-```
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `TEMU_AFFILIATE_ID` | Your Temu affiliate ID (required) | - |
+| `OPENAI_API_KEY` | OpenAI API key (required) | - |
+| `DATABASE_TYPE` | Database type (postgresql/sqlite) | `postgresql` |
+| `DATABASE_URL` | Database connection string | `postgresql://...` |
+| `LLM_PROVIDER` | LLM provider | `openai/gpt-4o-mini` |
+| `MAX_CONCURRENT_REQUESTS` | Max concurrent requests | `3` |
+| `REQUEST_DELAY_SECONDS` | Delay between requests | `2` |
+| `ENVIRONMENT` | Environment mode | `production` |
+| `PORT` | API port | `8000` |
 
-### Generar Link de Afiliado
+## 🛡️ Security
 
-```bash
-curl -X POST http://localhost:8000/api/affiliate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "product_url": "https://www.temu.com/product-xyz.html",
-    "affiliate_id": "YOUR_ID"
-  }'
-```
+- All sensitive data is loaded from environment variables
+- Input validation on all API endpoints
+- Rate limiting (implementable)
+- SQL injection prevention with ORM
 
----
+## 🔒 Production Security Notes
 
-## ⚠️ Notas Importantes
+- Change default passwords in production
+- Use HTTPS in production
+- Implement authentication for sensitive endpoints
+- Monitor API usage and costs
 
-1. **Rate limiting**: No hagas scraping masivo. Usa delays entre requests (configurado en 2-3 segundos)
-2. **Términos de servicio**: Respeta los TOS de Temu
-3. **Proxies**: Para scraping intensivo, considera usar proxies rotativos
-4. **Costos LLM**: Si usas OpenAI, ten en cuenta los costos por request (~$0.001-0.01 por búsqueda)
-5. **Caché**: La base de datos cachea resultados para evitar scraping repetido
-6. **Anti-bot**: Crawl4AI incluye stealth mode, pero Temu puede bloquearte si haces muchos requests
+## 📈 Scaling
 
----
+For high-volume usage:
+- Add Redis for caching
+- Implement proxy rotation
+- Add load balancer for multiple instances
+- Monitor and optimize scraping delays
 
-## 🐛 Troubleshooting
+## 🤝 Contributing
 
-### Error: "Could not find module 'crawl4ai'"
+Feel free to submit issues and pull requests for improvements.
 
-**Solución**: Instala las dependencias
-```bash
-pip install -r requirements.txt
-playwright install chromium
-```
+## 📄 License
 
-### Error: "OPENAI_API_KEY not found"
-
-**Solución**: Configura tu `.env`
-```bash
-cp .env.example .env
-# Edita .env y agrega tu API key
-```
-
-### Error: "Connection refused localhost:8000"
-
-**Solución**: Asegúrate de que la API esté corriendo
-```bash
-python api.py
-```
-
-### Scraping muy lento
-
-**Solución**: Reduce el delay en `scraper.py`
-```python
-config = CrawlerRunConfig(
-    delay_before_return_html=2.0  # Cambiar de 3.0 a 2.0
-)
-```
-
-### Temu bloqueó mi IP
-
-**Solución**:
-1. Espera 30 minutos
-2. Usa VPN o proxies rotativos
-3. Reduce la frecuencia de scraping
-
----
-
-## 📝 TO-DO / Roadmap
-
-- [x] Scraper con Crawl4AI + LLM
-- [x] API REST con FastAPI
-- [x] Frontend con filtros interactivos
-- [x] Integración n8n
-- [x] Sistema de base de datos
-- [x] Scripts de instalación
-- [ ] Sistema de caché (Redis)
-- [ ] Soporte para proxies rotativos
-- [ ] Modo batch (scrapear múltiples búsquedas)
-- [ ] Dashboard de estadísticas avanzadas
-- [ ] Sistema de alertas (precio/stock)
-- [ ] Exportar a CSV/Excel
-- [ ] Docker Compose para deployment
-
----
-
-## 🤝 Contribuciones
-
-Creado para automatizar búsqueda de productos en Temu con links de afiliado.
-
-**Dev: Jorge** 🔥
+[MIT License](LICENSE)
