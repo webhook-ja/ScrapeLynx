@@ -113,9 +113,33 @@ OPENAI_API_KEY=sk-your-real-api-key
 ### 4. Deploy
 Click "Deploy" and wait 10-15 minutes for the first build.
 
-## 🐳 Docker Compose Deployment
+## 🐳 Docker Image
 
-For manual Docker deployment:
+ScrapeLynx is available as a Docker image on GitHub Container Registry.
+
+### Using Pre-built Image
+
+Pull and run the latest image directly:
+
+```bash
+docker run -d \
+  --name scrapelynx \
+  -p 8000:8000 \
+  -e TEMU_AFFILIATE_ID=your_affiliate_id \
+  -e OPENAI_API_KEY=sk-your-api-key \
+  -e DATABASE_TYPE=postgresql \
+  -e DATABASE_URL=postgresql://user:password@host:5432/dbname \
+  ghcr.io/webhook-ja/scrapelynx:latest
+```
+
+### Available Image Tags
+
+- `latest` - Latest stable build from main branch
+- `${commit-sha}` - Specific commit builds
+
+### Docker Compose Deployment
+
+For complete setup with database and other services:
 
 ```bash
 # Build and start services
@@ -124,6 +148,21 @@ docker-compose -f docker-compose.easypanel.yml up -d
 # View logs
 docker-compose -f docker-compose.easypanel.yml logs -f app
 ```
+
+### Building Locally
+
+```bash
+# Build the image from source
+docker build -t scrapelynx .
+
+# Run with your environment
+docker run -d -p 8000:8000 \
+  -e TEMU_AFFILIATE_ID=your_affiliate_id \
+  -e OPENAI_API_KEY=sk-your-api-key \
+  scrapelynx
+```
+
+For more Docker information, check the [DOCKER.md](DOCKER.md) file.
 
 ## 🔧 Available APIs
 
