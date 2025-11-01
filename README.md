@@ -22,10 +22,19 @@ scrapelynx/
 ├── config.py               # Centralized configuration
 ├── requirements.txt        # Python dependencies
 ├── requirements-production.txt # Production dependencies
+├── temu_url_parser.py      # URL parsing and affiliate link generation
 │
 ├── frontend/              # Web interface
 │   ├── index.html         # Main dashboard
 │   └── app.js             # Frontend logic
+│
+├── chrome_extension/      # Chrome extension for cookie/API inspection
+│   ├── manifest.json      # Extension configuration
+│   ├── popup.html         # Extension UI
+│   ├── popup.js           # Extension logic
+│   ├── content.js         # Content script for page inspection
+│   ├── background.js      # Background functionality
+│   └── icons/             # Extension icons
 │
 ├── Dockerfile             # Production Docker configuration
 ├── docker-compose.yml     # Development compose file
@@ -175,6 +184,37 @@ For more Docker information, check the [DOCKER.md](DOCKER.md) file.
 - `GET /api/results/{filename}` - Get specific result
 - `DELETE /api/results/{filename}` - Delete result
 - `POST /webhook/n8n/search` - n8n webhook endpoint
+
+## 🌐 Additional Tools
+
+### Chrome Extension: Cookie & API Inspector
+A Chrome extension to detect cookies, affiliate IDs, API endpoints, and tracking parameters on websites.
+
+**Features:**
+- 🔍 **Cookie Detection**: View all cookies from the current website
+- 🏷️ **Affiliate ID Detection**: Identify affiliate tracking parameters, IDs, and URLs  
+- 🌐 **API Endpoint Detection**: Discover API endpoints used by the website
+- 📊 **Real-time Monitoring**: Continuously scans for new data as you browse
+
+**Installation:**
+1. Open Chrome and navigate to `chrome://extensions`
+2. Enable "Developer mode"
+3. Click "Load unpacked"
+4. Select the `chrome_extension` folder
+
+### URL Parser & Affiliate Link Generator
+The `temu_url_parser.py` script can:
+- Extract product IDs from Temu URLs
+- Clean URLs of existing affiliate parameters
+- Generate new affiliate links with your ID
+- Identify affiliate parameters in URLs
+
+Example usage:
+```
+python temu_url_parser.py
+```
+
+The script will analyze the provided URL, extract the product ID (for your example: 601100131913227), clean the URL of existing affiliate parameters, and show how to generate a new affiliate link with your own ID.
 
 ## 🤖 Using with n8n
 
