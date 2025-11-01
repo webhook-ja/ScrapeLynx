@@ -52,7 +52,7 @@ def extract_product_id_from_url(url):
 
 def generate_affiliate_link(product_url, affiliate_id):
     """
-    Generate affiliate link for Temu product
+    Generate affiliate link for Temu product with your affiliate ID
     """
     # Parse the original URL
     parsed_url = urlparse(product_url)
@@ -66,19 +66,15 @@ def generate_affiliate_link(product_url, affiliate_id):
     # Update or add affiliate parameters
     query_params['_x_ads_csite'] = ['affiliate_seo']
     query_params['_x_ads_channel'] = ['affiliate']
-    query_params['_x_sessn_id'] = ['auto_generated']  # This might need to be dynamic
+    query_params['_x_ads_sub_channel'] = [affiliate_id]  # Your affiliate ID
     
-    # Reconstruct the query string
+    # Reconstruct the query string without creating duplicates
     new_query = []
     for key, values in query_params.items():
         for value in values:
             new_query.append(f"{key}={value}")
     
     affiliate_link = f"{base_url}?{'&'.join(new_query)}"
-    
-    # If the affiliate ID should be added as a separate parameter
-    if '_x_ads_sub_channel' not in query_params:
-        affiliate_link += f"&_x_ads_sub_channel={affiliate_id}"
     
     return affiliate_link
 
@@ -118,14 +114,27 @@ if __name__ == "__main__":
     # Your example URL
     example_url = "https://www.temu.com/es/libro--de-animales-aprendizaje-interactivo-para-ninos-con-paginas-duraderas-en-poliester-que-incluyen---y--ideal-como-regalo-infantil--festivo--de--navidad-meja-habilidades-cognitivas--resistente-a-roturas-g-601100131913227.html?top_gallery_url=https%3A%2F%2Fimg.kwcdn.com%2Fproduct%2Ffancy%2F4bc70669-fb26-45c9-9024-0ff3a0d4b7e5.jpg&spec_gallery_id=70137&_x_ads_csite=affiliate_seo&_x_sessn_id=ioc8mac1wp&refer_page_name=afc_share_goods&refer_page_id=13788_1761959857577_nmc2ha69qb&refer_page_sn=13788"
     
+    print("Analyzing Temu URL:")
+    print(f"Original URL: {example_url}")
+    print()
+    
     # Extract product ID
     product_id = extract_product_id_from_url(example_url)
     print(f"Product ID: {product_id}")
+    print("Note: This is the ID of the product, not your affiliate ID")
+    print()
     
     # Clean the URL to get the base product URL
     clean_url = clean_affiliate_link(example_url)
-    print(f"Clean URL: {clean_url}")
+    print(f"Clean URL (without affiliate params): {clean_url}")
+    print()
     
-    # Generate new affiliate link (replace YOUR_AFFILIATE_ID with actual ID)
+    # Example of how to generate an affiliate link with your own affiliate ID
+    # (Replace 'YOUR_AFFILIATE_ID' with your actual Temu affiliate ID)
     # affiliate_link = generate_affiliate_link(clean_url, "YOUR_AFFILIATE_ID")
     # print(f"New Affiliate Link: {affiliate_link}")
+    
+    print("To generate your own affiliate link:")
+    print("1. Find your affiliate ID from your Temu affiliate dashboard")
+    print("2. Use generate_affiliate_link(clean_url, 'your_actual_affiliate_id')")
+    print("3. The function will create a URL with your affiliate ID")
