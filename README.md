@@ -150,12 +150,22 @@ docker run -d \
 
 For complete setup with database and other services:
 
+#### Option 1: Full setup with PostgreSQL and Redis
 ```bash
-# Build and start services
-docker-compose -f docker-compose.easypanel.yml up -d
+# Using optimized compose file
+docker-compose -f docker-compose.optimizado.yml up -d
 
 # View logs
-docker-compose -f docker-compose.easypanel.yml logs -f app
+docker-compose -f docker-compose.optimizado.yml logs -f app
+```
+
+#### Option 2: Simplified setup with SQLite
+```bash
+# Using simplified compose file
+docker-compose -f docker-compose.simplificado.yml up -d
+
+# View logs
+docker-compose -f docker-compose.simplificado.yml logs -f app
 ```
 
 ### Building Locally
@@ -172,6 +182,23 @@ docker run -d -p 8000:8000 \
 ```
 
 For more Docker information, check the [DOCKER.md](DOCKER.md) file.
+
+## 🚀 Easypanel Deployment (Updated)
+
+We now provide multiple optimized options for Easypanel deployment:
+
+### Recommended: Simultaneous API + PostgreSQL Deployment
+1. Create a PostgreSQL database in Easypanel
+2. Create an app using `docker-compose.optimizado.yml`
+3. Configure only `TEMU_AFFILIATE_ID` and `OPENAI_API_KEY`
+4. Complete system (API + PostgreSQL + Redis) deploys automatically
+
+### Fastest: Single Service with Prebuilt Image
+1. Create an app using `docker-compose.simplificado.yml`
+2. Configure required environment variables
+3. Uses prebuilt image for faster deployment
+
+For detailed deployment instructions, check [EASYPANEL_DEPLOY.md](EASYPANEL_DEPLOY.md)
 
 ## 🔧 Available APIs
 

@@ -1,0 +1,103 @@
+# ============================================
+# SCRAPELYNX - DOCKER COMPOSE OPTIMIZADO PARA EASYPANEL
+# Usando imagen preconstruida
+# ============================================
+
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: scrapelynx-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-scrapelynx}
+      POSTGRES_USER: ${POSTGRES_USER:-scrapelynx}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-scrapelynx123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-scrapelynx}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis para caché (opcional)
+  redis:
+    image: redis:7-alpine
+    container_name: scrapelynx-redis
+    restart: always
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ScrapeLynx API (usando imagen preconstruida)
+  app:
+    image: ghcr.io/webhook-ja/scrapelynx:latest
+    container_name: scrapelynx-api
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-scrapelynx}:${POSTGRES_PASSWORD:-scrapelynx123}@postgres:5432/${POSTGRES_DB:-scrapelynx}
+      DATABASE_TYPE: postgresql
+
+      # Redis
+      REDIS_URL: redis://redis:6379/0
+      REDIS_ENABLED: "true"
+
+      # User configuration
+      TEMU_AFFILIATE_ID: ${TEMU_AFFILIATE_ID}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+      # App Config
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      PORT: ${PORT:-8000}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai/gpt-4o-mini}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      MAX_CONCURRENT_REQUESTS: ${MAX_CONCURRENT_REQUESTS:-3}
+      REQUEST_DELAY_SECONDS: ${REQUEST_DELAY_SECONDS:-2}
+    volumes:
+      - app_results:/app/results
+      - app_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+volumes:
+  postgres_data:
+  redis_data:
+  app_results:
+  app_logs:
+
+# ============================================
+# INSTALACIÓN EN EASYPANEL (MÉTODO ÓPTIMO):
+# ============================================
+# 1. Importa este repositorio en Easypanel
+# 2. Usa este archivo docker-compose.optimizado.yml
+# 3. Configura SOLO estas variables:
+#    - TEMU_AFFILIATE_ID: Tu ID de afiliado de Temu
+#    - OPENAI_API_KEY: Tu clave API de OpenAI
+# 4. Opcionalmente puedes cambiar estas variables también:
+#    - POSTGRES_DB: [scrapelynx]
+#    - POSTGRES_USER: [scrapelynx]
+#    - POSTGRES_PASSWORD: [password seguro]
+#    - LLM_PROVIDER: [openai/gpt-4o-mini por defecto]
+#    - PORT: [8000 por defecto]
+# 5. Deploy
+# 6. ¡Listo! 🚀
+# ============================================

@@ -1,0 +1,67 @@
+# ============================================
+# SCRAPELYNX - DOCKER COMPOSE SIMPLIFICADO
+# Para despliegue rápido con imagen preconstruida
+# ============================================
+
+version: '3.8'
+
+services:
+  # ScrapeLynx API (usando imagen preconstruida de GHCR)
+  app:
+    image: ghcr.io/webhook-ja/scrapelynx:latest
+    container_name: scrapelynx-api
+    restart: always
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      # Database - Configurar con PostgreSQL externo o usar SQLite para pruebas
+      DATABASE_TYPE: ${DATABASE_TYPE:-sqlite}
+      DATABASE_URL: ${DATABASE_URL:-sqlite:///scrapelynx.db}
+      
+      # Si usas PostgreSQL externo, descomenta y configura:
+      # DATABASE_TYPE: postgresql
+      # DATABASE_URL: postgresql://user:password@host:5432/dbname
+
+      # Redis (opcional)
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      REDIS_ENABLED: ${REDIS_ENABLED:-false}
+
+      # User configuration
+      TEMU_AFFILIATE_ID: ${TEMU_AFFILIATE_ID}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+      # App Config
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      PORT: ${PORT:-8000}
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai/gpt-4o-mini}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      MAX_CONCURRENT_REQUESTS: ${MAX_CONCURRENT_REQUESTS:-3}
+      REQUEST_DELAY_SECONDS: ${REQUEST_DELAY_SECONDS:-2}
+    volumes:
+      - app_results:/app/results
+      - app_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  app_results:
+  app_logs:
+
+# ============================================
+# INSTALACIÓN SIMPLIFICADA EN EASYPANEL:
+# ============================================
+# 1. Importa este repositorio en Easypanel
+# 2. Usa este archivo docker-compose.simplificado.yml
+# 3. Configura mínimo estas variables:
+#    - TEMU_AFFILIATE_ID: Tu ID de afiliado de Temu
+#    - OPENAI_API_KEY: Tu clave API de OpenAI
+# 4. Opcionalmente para PostgreSQL:
+#    - DATABASE_TYPE: postgresql
+#    - DATABASE_URL: postgresql://user:password@host:5432/dbname
+# 5. Deploy
+# 6. ¡Listo! 🚀
+# ============================================
